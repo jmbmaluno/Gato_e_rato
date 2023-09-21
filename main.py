@@ -1,70 +1,48 @@
-class Vetor():
-    def __init__(self, x , y):
-        self.x = x
-        self.y = y
+from classes import *
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+def atualizar(lista):
+    x = []
+    y = []
+
+    for p in lista:
+        p.andar()
+        x.append(p.ponto_atual.x)
+        y.append(p.ponto_atual.y)
+
+    return x,y
+
+gato = Personagem(Vetor(0,1), 1, Vetor(1,0))
+rato = Personagem(Vetor(0,0), 0.5, Vetor(1,0))
+
+lista_personagem = []
+x = []
+y = []
+
+lista_personagem.append(gato)
+lista_personagem.append(rato)
+
+fig,ax = plt.subplots()
+ax.plot(x,y)
+
+
+def update(i):
     
-    def __sub__(self, v):
-        return Vetor(self.x - v.x, self.y - v.y)
-    
-    def __add__(self, v):
-        return Vetor(self.x + v.x, self.y + v.y)
-    
-    def __mul__(self, k):
-        return Vetor(self.x * k, self.y * k)
+    pos_x,pos_y = atualizar(lista_personagem)
+    global x
+    global y
 
-    def __str__(self):
-        return "[" + str(self.x) + ", " + str(self.y) + "]"
+    
+    x = x + pos_x
+    y = y + pos_y
     
 
-
-class Personagem:
-    def __init__(self, origem, velocidade, direcao = None, alvo = None):
-        self.origem = origem
-        self.velocidade = velocidade
-        self.ponto_atual = origem
-        self.alvo = alvo
-        self.direcao = direcao
-
-        if alvo != None:
-            self.direcao = alvo.ponto_atual - self.ponto_atual
-    
-    def __str__(self):
-        
-        return "Origem: " + str(self.origem) + "\nVelocidade: " +  str(self.velocidade) + "\nDireção: " +  str(self.direcao)
-
-    def atualizar_direcao(self):
-        if self.alvo != None:
-            self.direcao = self.alvo.ponto_atual - self.ponto_atual
-    
-    def andar(self):
-        self.atualizar_direcao()
-        self.ponto_atual = self.ponto_atual + (self.direcao * self.velocidade)
+    plt.cla()
+    ax.plot(x,y)
 
 
+ani = FuncAnimation(fig = fig, func = update, frames = 200)
 
-
-
-rato = Personagem(Vetor(0,0), 1, direcao = Vetor(1,0))
-gato = Personagem(Vetor(0,1), 1, alvo = rato)
-
-
-print("rato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
-
-rato.andar()
-gato.andar()
-
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
-
-rato.andar()
-gato.andar()
-
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
-
-rato.andar()
-gato.andar()
-
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
+plt.show()
