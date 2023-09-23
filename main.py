@@ -1,70 +1,99 @@
-class Vetor():
-    def __init__(self, x , y):
-        self.x = x
-        self.y = y
-    
-    def __sub__(self, v):
-        return Vetor(self.x - v.x, self.y - v.y)
-    
-    def __add__(self, v):
-        return Vetor(self.x + v.x, self.y + v.y)
-    
-    def __mul__(self, k):
-        return Vetor(self.x * k, self.y * k)
-
-    def __str__(self):
-        return "[" + str(self.x) + ", " + str(self.y) + "]"
-    
+from personagem import *
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 
-class Personagem:
-    def __init__(self, origem, velocidade, direcao = None, alvo = None):
-        self.origem = origem
-        self.velocidade = velocidade
-        self.ponto_atual = origem
-        self.alvo = alvo
-        self.direcao = direcao
+##########  CASO GERAL  ###########
 
-        if alvo != None:
-            self.direcao = alvo.ponto_atual - self.ponto_atual
+
+entrada = open('entrada.txt', 'r')
+
+cena = Cenario()
+mov = []
+
+for i in entrada:
+    i = i.replace(' ', '')
+    l = i.split(';')
+
+    l[2] = l[2].replace('(', '')
+    l[2] = l[2].replace(')', '')
+
+    coord = l[2].split(',')
+
+    cena.add(Personagem(l[0], l[1],
+                        Vetor(float(coord[0]), float(coord[1])),
+                        float(l[3])))
+
+    if len(l) > 4:
+        mov.append(l[4])
+
+
+for i in range(len(mov)):
+    mov[i] = mov[i].replace('\n', '')
+
+    if mov[i][0] == '(':
+        mov[i] = mov[i].replace('(', '')
+        mov[i] = mov[i].replace(')', '')
+
+        coord = mov[i].split(',')
+
+        cena.lista[i].adicionar_direcao(Vetor(
+            float(coord[0]), float(coord[1])))
     
-    def __str__(self):
+    elif  mov[i][0] == '[':
+        #Aplicar aqui a parte de trajetoria
+        mov[i] = mov[i].replace('[', '')
+        mov[i] = mov[i].replace(']', '')
+        mov[i] = mov[i].replace(' ', '')
+
+        l = []
+
+        j = 1
+
+        while j < len(mov[i]):
+            
+            if mov[i][j] != ',':
+                l.append(Vetor(float(mov[i][j]), float(mov[i][j+2])))
+                j = j + 2
+
+            j = j + 2
         
-        return "Origem: " + str(self.origem) + "\nVelocidade: " +  str(self.velocidade) + "\nDireção: " +  str(self.direcao)
-
-    def atualizar_direcao(self):
-        if self.alvo != None:
-            self.direcao = self.alvo.ponto_atual - self.ponto_atual
+        cena.lista[i].adicionar_trajetoria(l)
     
-    def andar(self):
-        self.atualizar_direcao()
-        self.ponto_atual = self.ponto_atual + (self.direcao * self.velocidade)
+    else:
+        alvo = mov[i]
+        for j in cena.lista:
+            if j.nome == alvo:
+                cena.lista[i].adicionar_alvo(j)
+                break
 
 
+entrada.close()
 
 
-
-rato = Personagem(Vetor(0,0), 1, direcao = Vetor(1,0))
-gato = Personagem(Vetor(0,1), 1, alvo = rato)
+fig, ax = plt.subplots()
 
 
-print("rato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
+for i in range(len(cena.matriz_x)):
+    nome = cena.lista[i].nome
+    cor = cena.lista[i].cor
+    ax.plot(cena.matriz_x[i], cena.matriz_y[i], color = cor, label = nome)
 
-rato.andar()
-gato.andar()
 
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
+def update(i):
+    cena.atualizar()
 
-rato.andar()
-gato.andar()
+    for i in range(len(cena.matriz_x)):
+        nome = cena.lista[i].nome
+        cor = cena.lista[i].cor
+        
+        ax.plot(cena.matriz_x[i], cena.matriz_y[i], color = cor, label = nome)    
 
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
 
-rato.andar()
-gato.andar()
+ani = FuncAnimation(fig = fig, func = update, frames = 1000)
 
-print("\nrato: ", rato.ponto_atual)
-print("gato: ", gato.ponto_atual)
+
+plt.legend()
+plt.grid()
+plt.show()

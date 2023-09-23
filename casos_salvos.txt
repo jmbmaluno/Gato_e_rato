@@ -1,0 +1,35 @@
+#CASO DO RATO EM LOSANGO E O GATO NO CENTRO DO LOSANGO
+
+rato = Personagem('rato', 'r', Vetor(0,0), 3, loop = True,
+                  trajetoria=[Vetor(0,0), Vetor(10,10), Vetor(0,20), Vetor(-10,10)])
+
+gato = Personagem('gato', 'b', Vetor(0,10), 1, alvo=rato)
+
+cena.add(rato)
+cena.add(gato)
+
+
+n = 0
+
+def update(i):
+    global n
+    n = n + 1
+    cena.atualizar()
+
+    for i in range(len(cena.matriz_x)):
+        nome = cena.lista[i].nome
+        cor = cena.lista[i].cor
+        if n < 100:
+            if nome == 'gato':
+                ax.plot(cena.matriz_x[i], cena.matriz_y[i], color = cor, label = nome, alpha = 0)
+
+            else:
+                ax.plot(cena.matriz_x[i], cena.matriz_y[i], color = cor, label = nome)
+        
+        else:
+            n = 100
+            if nome == 'gato':
+                ax.plot(cena.matriz_x[i][n:], cena.matriz_y[i][n:], color = cor, label = nome)
+            
+            else:
+                ax.plot(cena.matriz_x[i], cena.matriz_y[i], color = cor, label = nome)
